@@ -29,9 +29,42 @@ class ProjectInput {
     this.attach();
   }
 
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
+
+    if (
+      !enteredTitle.trim() ||
+      !enteredDescription.trim() ||
+      !enteredPeople.trim()
+    ) {
+      alert('Invalid input, please try again');
+
+      return;
+    }
+
+    return [enteredTitle, enteredDescription, +enteredPeople];
+  }
+
+  private clearInputs(): void {
+    this.titleInputElement.value = '';
+    this.descriptionInputElement.value = '';
+    this.peopleInputElement.value = '';
+  }
+
   @AutoBind
   private submitHandler(event: Event): void {
     event.preventDefault();
+
+    const userInput = this.gatherUserInput();
+
+    if (userInput) {
+      const [title, desc, people] = userInput;
+
+      this.clearInputs();
+      console.log(title, desc, people);
+    }
   }
 
   private configure(): void {
