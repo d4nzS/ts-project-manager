@@ -1,3 +1,42 @@
+// Project State Management
+
+class ProjectState {
+  private listeners: any[] = [];
+  private projects: any[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {
+  }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+
+    this.instance = new ProjectState();
+
+    return this.instance;
+  }
+
+  addListener(listenerFn: Function): void {
+    this.listeners.push(listenerFn);
+  }
+
+  addProject(title: string, description: string, people: number): void {
+    const newProject = {
+      id: Math.random().toString(),
+      title,
+      description,
+      people
+    };
+
+    this.projects.push(newProject);
+    this.listeners.forEach(listenerFn => listenerFn(this.projects.slice()));
+  }
+}
+
+const projectState = ProjectState.getInstance();
+
 // Validation
 interface Validatable {
   value: string | number;
@@ -52,12 +91,29 @@ class ProjectList {
   templateElement = document.getElementById('project-list') as HTMLTemplateElement;
   hostElement = document.getElementById('app') as HTMLElement;
   element = document.importNode(this.templateElement.content, true).firstElementChild as HTMLElement;
+  assignedProjects: any[] = [];
 
   constructor(private type: 'active' | 'finished') {
     this.element.id = `${this.type}-projects`;
 
+    projectState.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
+
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const listEl = document.getElementById(`${this.type}-projects-list`) as HTMLUListElement;
+
+    this.assignedProjects.forEach(prjItem => {
+      const listItem = document.createElement('li');
+      listItem.textContent = prjItem.title;
+
+      listEl.append(listItem);
+    });
   }
 
   private renderContent(): void {
@@ -134,8 +190,8 @@ class ProjectInput {
     if (userInput) {
       const [title, desc, people] = userInput;
 
+      projectState.addProject(title, desc, people);
       this.clearInputs();
-      console.log(title, desc, people);
     }
   }
 
