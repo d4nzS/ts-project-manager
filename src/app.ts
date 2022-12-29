@@ -47,6 +47,29 @@ function AutoBind(
   };
 }
 
+// ProjectList class
+class ProjectList {
+  templateElement = document.getElementById('project-list') as HTMLTemplateElement;
+  hostElement = document.getElementById('app') as HTMLElement;
+  element = document.importNode(this.templateElement.content, true).firstElementChild as HTMLElement;
+
+  constructor(private type: 'active' | 'finished') {
+    this.element.id = `${this.type}-projects`;
+
+    this.attach();
+    this.renderContent();
+  }
+
+  private renderContent(): void {
+    this.element.querySelector('ul')!.id = `${this.type}-projects-list`;
+    this.element.querySelector('h2')!.textContent = `${this.type.toUpperCase()} PROJECTS`;
+  }
+
+  private attach(): void {
+    this.hostElement.append(this.element);
+  }
+}
+
 // ProjectInput class
 class ProjectInput {
   templateElement = document.getElementById('project-input') as HTMLTemplateElement;
@@ -126,3 +149,5 @@ class ProjectInput {
 }
 
 const prjInput = new ProjectInput();
+const activePrjList = new ProjectList('active');
+const finishedPrjList = new ProjectList('finished');
