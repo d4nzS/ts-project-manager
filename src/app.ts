@@ -1,3 +1,18 @@
+// Drag'n'Drop Interfaces
+interface Draggable {
+  dragStartHandler(event: DragEvent): void;
+
+  dragEndHandler(event: DragEvent): void;
+}
+
+interface DragTarget {
+  dragOverHandler(event: DragEvent): void;
+
+  dropHandler(event: DragEvent): void;
+
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 // Project Type
 enum ProjectStatus { Active, Finished }
 
@@ -139,7 +154,17 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 //ProjectItem Class
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem
+  extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable {
+  get persons(): string {
+    if (this.project.people === 1) {
+      return '1 persons';
+    }
+
+    return `${this.project.people} persons`;
+  }
+
   constructor(hostId: string, private project: Project) {
     super('single-project', hostId, false, project.id);
 
@@ -147,12 +172,22 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
+  @AutoBind
+  dragStartHandler(event: DragEvent): void {
+  }
+
+  dragEndHandler(_: DragEvent): void{
+  }
+
   configure() {
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+
   }
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;
-    this.element.querySelector('h3')!.textContent = this.project.people.toString();
+    this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
     this.element.querySelector('p')!.textContent = this.project.description;
   }
 }
